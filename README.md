@@ -59,10 +59,16 @@ spaCy
 difflib → typo tolerance / fuzzy matching
 
 roadmaps.json → knowledge base of skills, domains, careers
+
 📂 Project Structure
+
 .
 ├── app.py                # Main Streamlit app
+
 ├── roadmaps_fixed.json   # Curated skill → roadmap + careers
+
 ├── synonyms.json         # Synonym mappings for skills
+
 ├── requirements.txt      # Dependencies
+
 └── README.md    
