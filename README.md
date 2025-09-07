@@ -72,3 +72,9 @@ roadmaps.json → knowledge base of skills, domains, careers
 ├── requirements.txt      # Dependencies
 
 └── README.md    
+
+---
+sdk: docker
+app_file: app.py
+---
+
