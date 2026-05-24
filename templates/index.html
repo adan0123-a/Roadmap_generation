@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Roadmap Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 15px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2em;
+            color: #667eea;
+        }
+        
+        .result {
+            margin-top: 40px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .career-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .career-section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .career-list {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .career-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .roadmap-level {
+            margin-bottom: 25px;
+        }
+        
+        .roadmap-level h3 {
+            color: #764ba2;
+            margin-bottom: 10px;
+        }
+        
+        .roadmap-level ul {
+            padding-left: 25px;
+        }
+        
+        .roadmap-level li {
+            margin: 8px 0;
+            line-height: 1.5;
+        }
+        
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1> Career Roadmap Generator</h1>
+        <p class="subtitle">Enter your skills and get a personalized career roadmap</p>
+        
+        <textarea id="skills" rows="5" placeholder="Enter your skills here...&#10;Example: Python, Machine Learning, Data Analysis, Communication, Leadership"></textarea>
+        <br>
+        <button id="generateBtn" onclick="generateRoadmap()">Generate Roadmap</button>
+        
+        <div id="loading" class="loading" style="display: none;">
+             Generating your personalized roadmap...
+        </div>
+        
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        async function generateRoadmap() {
+            const skills = document.getElementById('skills').value;
+            const generateBtn = document.getElementById('generateBtn');
+            const loadingDiv = document.getElementById('loading');
+            const resultDiv = document.getElementById('result');
+            
+            if (!skills.trim()) {
+                alert('Please enter your skills');
+                return;
+            }
+            
+            // Show loading
+            generateBtn.disabled = true;
+            loadingDiv.style.display = 'block';
+            resultDiv.style.display = 'none';
+            resultDiv.innerHTML = '';
+            
+            try {
+                const response = await fetch('/api/generate-roadmap', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ skills: skills })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                displayRoadmap(data);
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+                resultDiv.style.display = 'block';
+            } finally {
+                generateBtn.disabled = false;
+                loadingDiv.style.display = 'none';
+            }
+        }
+        
+        function displayRoadmap(data) {
+            const resultDiv = document.getElementById('result');
+            
+            let html = '<div class="career-section">';
+            
+            // Possible careers
+            if (data.possible_careers && data.possible_careers.length > 0) {
+                html += '<h2>📋 Possible Career Paths</h2>';
+                html += '<ul class="career-list">';
+                data.possible_careers.forEach(career => {
+                    html += `<li>${career}</li>`;
+                });
+                html += '</ul>';
+            }
+            
+            // Roadmap for
+            if (data.roadmap_for) {
+                html += `<h2> Roadmap For: <strong style="color: #764ba2;">${data.roadmap_for}</strong></h2>`;
+            }
+            
+            html += '</div>';
+            
+            // Roadmap steps
+            if (data.roadmap) {
+                html += '<div class="career-section">';
+                html += '<h2>📚 Learning Roadmap</h2>';
+                
+                const levels = ['beginner', 'intermediate', 'expert'];
+                const levelNames = {'beginner': '🌱 Beginner', 'intermediate': '📈 Intermediate', 'expert': '🏆 Expert'};
+                
+                levels.forEach(level => {
+                    const steps = data.roadmap[level];
+                    if (steps && steps.length > 0) {
+                        html += `<div class="roadmap-level">`;
+                        html += `<h3>${levelNames[level]}</h3>`;
+                        html += '<ul>';
+                        steps.forEach(step => {
+                            html += `<li>${step}</li>`;
+                        });
+                        html += '</ul></div>';
+                    }
+                });
+                
+                html += '</div>';
+            }
+            
+            resultDiv.innerHTML = html;
+            resultDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
