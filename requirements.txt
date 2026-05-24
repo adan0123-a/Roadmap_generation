@@ -1,4 +1,6 @@
-streamlit
-spacy
-torch
-sentence-transformers
+fastapi
+uvicorn[standard]
+python-dotenv
+groq
+pydantic
+python-multipart
